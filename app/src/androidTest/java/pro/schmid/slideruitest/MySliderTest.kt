@@ -18,26 +18,29 @@ class MySliderTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    @Test
-    fun sliderCallsCallback() {
+@Test
+fun sliderCallsCallback() {
 
-        var newValue: Float? = null
-        val callback = { value: Float -> newValue = value }
+    var newValue: Float? = null
+    val callback = { value: Float -> newValue = value }
 
-        composeTestRule.setContent {
-            MaterialTheme {
-                MySlider(value = 0.3f, onChangeValue = callback)
-            }
+    composeTestRule.setContent {
+        MaterialTheme {
+            MySlider(value = 0.3f, onChangeValue = callback)
         }
-
-        val rangeInfoStart = ProgressBarRangeInfo(0.3f, 0.0f..1.0f)
-        val dimmer = composeTestRule.onNode(hasProgressBarRangeInfo(rangeInfoStart))
-        dimmer.assertExists()
-        dimmer.performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
-
-        val endRangeInfo = ProgressBarRangeInfo(0.8f, 0.0f..1.0f)
-        composeTestRule.onNode(hasProgressBarRangeInfo(endRangeInfo)).assertExists()
-
-        assertNotNull(newValue)
     }
+
+    // Find slider and move it
+    val rangeInfoStart = ProgressBarRangeInfo(0.3f, 0.0f..1.0f)
+    composeTestRule.onNode(hasProgressBarRangeInfo(rangeInfoStart))
+        .performSemanticsAction(SemanticsActions.SetProgress) { it(0.8f) }
+
+    // Make sure the slider was moved
+    val endRangeInfo = ProgressBarRangeInfo(0.8f, 0.0f..1.0f)
+    composeTestRule.onNode(hasProgressBarRangeInfo(endRangeInfo))
+        .assertExists()
+
+    // Make sure the callback was called
+    assertNotNull(newValue)
+}
 }
